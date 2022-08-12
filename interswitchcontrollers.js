@@ -1,5 +1,6 @@
 const axios = require("axios")
 const dotenv = require("dotenv")
+const forge = require("node-forge")
 
 const generateToken = async () => {
   const options = {
@@ -93,10 +94,5 @@ const confirmTransaction = async () => {
   const status = await axios(url, options).then(response => {
     console.log(response.data)
   })
-  
-  fetch('https://qa.interswitchng.com/collections/api/v1/gettransaction.json?merchantCode=MX6072&transactionReference=123456xx1x&merchantcode=merchantcode&transactionreference=reference&amount=amount%20%2F', options)
-    .then(response => response.json())
-    .then(response => console.log(response))
-    .catch(err => console.error(err));
 }
 
