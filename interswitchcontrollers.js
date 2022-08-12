@@ -47,7 +47,6 @@ const toHex = function(str){
 
 };
 
-module.exports = authData
 
 const generateToken = async () => {
   const options = {
@@ -58,9 +57,8 @@ const generateToken = async () => {
     }
   };
 
-  const url = 'https://apps.qa.interswitchng.com/passport/oauth/token?grant_type=client_credentials'
 
-  return await axios(url, options).then(response => {
+  return await axios(process.env.TOKEN_GENERATION_URL, options).then(response => {
     console.log(response.data)
 
     if (response.status == 200) {
@@ -80,11 +78,23 @@ const authOTP = async (paymentID, OTP, token) => {
     body: JSON.stringify({paymentId: paymentID, otp: OTP})
   };
 
-  const url = 'https://payment-service.k8.isw.la/api/v3/purchases/otps/auths'
-
-  return await axios(url, options).then(response => {
+  return await axios(process.env.OTP_AUTHORIZTION_URL, options).then(response => {
     console.log(response.data.responseCode)
   })
+}
+
+const resendOTP = async () => {
+  const options = {
+    method: 'POST',
+    headers: {
+      Accept: 'text/plain',
+      Authorization: 'Bearer eyJhbGciOiJSUzI1NiJ9.eyJhdWQiOlsiaXN3LWNvbGxlY3Rpb25zIiwiaXN3LXBheW1lbnRnYXRld2F5IiwicGFzc3BvcnQiLCJwcm9qZWN0LXgtbWVyY2hhbnQiLCJ2YXVsdCJdLCJtZXJjaGFudF9jb2RlIjoiTVg2MDcyIiwicmVxdWVzdG9yX2lkIjoiMTIzODA4NTk1MDMiLCJzY29wZSI6WyJwcm9maWxlIl0sImp0aSI6IjVkOTczM2Y5LWMzNDEtNGFjZC04ZjE3LWViYzUyYWE0NjM2MiIsInBheWFibGVfaWQiOiIzMzU5NyIsImNsaWVudF9pZCI6IklLSUFCMjNBNEUyNzU2NjA1QzFBQkMzM0NFM0MyODdFMjcyNjdGNjYwRDYxIn0.ElgBX2KoF9LuUUpeBGzzp8CDAllTHWfgM6pJRgTtPYGJpoZufKlJrmE4QTvZV6MIVaNtK21majTgR4qXJr7CEkPK_4zCIHyN2b8a445vqhLYcbffQvK4EeUn_RzsWTmub2bruG5s4bRS1il5itPR0QQ-trEsbELU7TAHvC4p786RiAQd-K_I0bwtLzIXQN65jlw3eJxxK-BGfca-OMTUo9HGvraebfLB-7h4-vNbPred58gfLBSwK31jaLP19cMRc5Jea28jrlmGNUhHGzjnP7ZanqgC9uuvoepQsa39_DNBonR6xirxKw4aNlNLcKOTn026wyOTHIHUGlDQ3s3AOQ',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({paymentId: '3530066', amount: '2000', currency: 'NGN'})
+  };
+  
+  return await axios(process.env.RESEND_OTP_URL, options)
 }
 
 const makePayment = async (amount, token, auth_) => {
@@ -99,8 +109,7 @@ const makePayment = async (amount, token, auth_) => {
   const options = {
     url: '/api/v3/purchases',
     method: 'POST',
-    baseURL: 'https://payment-service.k8.isw.la',
-    port: 443,
+    baseURL: process.env.PAYMENT_API_BASEURL,
     headers: {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
@@ -132,9 +141,7 @@ const confirmTransaction = async () => {
     }
   };
 
-  const url = 'https://qa.interswitchng.com/collections/api/v1/gettransaction.json?merchantCode=MX6072&transactionReference=123456xx1x&merchantcode=merchantcode&transactionreference=reference&amount=amount%20%2F'
-
-  return await axios(url, options).then(response => {
+  return await axios(process.env.PAYMENT_CONFIRMATION_URL, options).then(response => {
     console.log(response.data)
   })
 }
@@ -142,6 +149,7 @@ const confirmTransaction = async () => {
 module.exports = {
   getAuthData,
   authOTP,
+  resendOTP,
   generateToken,
   makePayment,
   confirmTransaction
