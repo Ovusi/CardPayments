@@ -4,7 +4,11 @@ const forge = require("node-forge")
 
 require("dotenv").config()
 
-
+/**
+ * @dev Uses the card details stored in an "options" objesct
+ * to generate the auth data.
+ * @param {object} options
+ */
 const getAuthData = function(options){
     var authString = "1Z"+options.card + 'Z' + options.pin + 'Z' + options.exp + 'Z' + options.cvv;
     //console.log("Auth-string: "+authString);
@@ -47,7 +51,12 @@ const toHex = function(str){
 
 };
 
-
+/**
+ * @dev Sends a POST request to the Token API to generate
+ * a transaction token which is required to process the card 
+ * payment transaction.
+ * @return {object}
+ */
 const generateToken = async () => {
   const options = {
     method: 'POST',
@@ -67,6 +76,17 @@ const generateToken = async () => {
   })
 }
 
+/**
+ * @dev after a payment request is made, we use the OTP 
+ * sent to the number of the user to authenticate the
+ * transation.
+ * 
+ * @param {string} paymentID Payment id for the transaction.
+ * @param {string} OTP OTP sent to user's phone number.
+ * @param {string} token Previously generated token.
+ * 
+ * @return {number} Todo:
+ */
 const authOTP = async (paymentID, OTP, token) => {
   const options = {
     method: 'POST',
@@ -83,6 +103,11 @@ const authOTP = async (paymentID, OTP, token) => {
   })
 }
 
+/**
+ * @dev Resend OTP if previous one expires.
+ * 
+ * @param {string} token transaction token previously generated.
+ */
 const resendOTP = async (token) => {
   const options = {
     method: 'POST',
@@ -100,6 +125,14 @@ const resendOTP = async (token) => {
   .catch(error => { return error})
 }
 
+/**
+ * @dev Make a payment call to the Card Payments API.
+ * 
+ * @param {string} amount Amount of money to be paid.
+ * @param {string} token Previously generated transaction token.
+ * @param {string} auth_ Card auth data.
+ * @returns {object} Payment details
+ */
 const makePayment = async (amount, token, auth_) => {
   const param = {
     customerId: "1407002510",
@@ -134,6 +167,11 @@ const makePayment = async (amount, token, auth_) => {
 
 }
 
+/**
+ * @dev Confirm if transaction was successful.
+ * @param {string} token Previously generated transaction token.
+ * @returns {object} Confirmation data.
+ */
 const confirmTransaction = async (token) => {
   const options = {
     method: 'GET',
