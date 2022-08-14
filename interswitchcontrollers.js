@@ -61,7 +61,7 @@ const toHex = function(str){
  * payment transaction.
  * 
  * @property {Function} generateToken
- * @return {object}
+ * @return {string}
  */
 const generateToken = async () => {
   const options = {
