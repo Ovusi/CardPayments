@@ -34,8 +34,7 @@ require("dotenv").config()
  * to generate the auth data.
  * 
  * @property {Function} getAuthData
- * @param {object} options
- * 
+ * @param {object} options Object containing card details. {card: number, pin: number, exp: number, cvv: number}
  * @return {string} authData
  */
 const getAuthData = function(options){
@@ -86,7 +85,7 @@ const toHex = function(str){
  * payment transaction.
  * 
  * @property {Function} generateToken
- * @return {string}
+ * @return {string} Transaction token
  */
 const generateToken = async () => {
   const options = {
