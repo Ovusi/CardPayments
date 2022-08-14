@@ -106,7 +106,7 @@ const authOTP = async (paymentID, OTP, token) => {
 
   return await axios(process.env.OTP_AUTHORIZTION_URL, options).then(response => {
     return response.data.responseCode
-  })
+  }).catch(error => {throw error})
 }
 
 /**
