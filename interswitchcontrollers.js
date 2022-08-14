@@ -77,8 +77,10 @@ const generateToken = async () => {
 
     if (response.status == 200) {
       return response.data.access_token
+    } else {
+      return response.status
     }
-  })
+  }).catch(error => { return error })
 }
 
 /**
