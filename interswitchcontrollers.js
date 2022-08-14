@@ -7,7 +7,11 @@ require("dotenv").config()
 /**
  * @dev Uses the card details stored in an "options" objesct
  * to generate the auth data.
+ * 
+ * @property {Function} getAuthData
  * @param {object} options
+ * 
+ * @return {string} authData
  */
 const getAuthData = function(options){
     var authString = "1Z"+options.card + 'Z' + options.pin + 'Z' + options.exp + 'Z' + options.cvv;
@@ -55,6 +59,8 @@ const toHex = function(str){
  * @dev Sends a POST request to the Token API to generate
  * a transaction token which is required to process the card 
  * payment transaction.
+ * 
+ * @property {Function} generateToken
  * @return {object}
  */
 const generateToken = async () => {
@@ -66,12 +72,11 @@ const generateToken = async () => {
     }
   };
 
-
   return await axios(process.env.TOKEN_GENERATION_URL, options).then(response => {
-    console.log(response.data)
+    // console.log(response.data)
 
     if (response.status == 200) {
-      console.log(response.data.access_token)
+      return response.data.access_token
     }
   })
 }
@@ -81,11 +86,12 @@ const generateToken = async () => {
  * sent to the number of the user to authenticate the
  * transation.
  * 
+ * @property {Function} authOTP
  * @param {string} paymentID Payment id for the transaction.
  * @param {string} OTP OTP sent to user's phone number.
  * @param {string} token Previously generated token.
  * 
- * @return {number} Todo:
+ * @return {number} Tranaction response code:
  */
 const authOTP = async (paymentID, OTP, token) => {
   const options = {
@@ -99,14 +105,16 @@ const authOTP = async (paymentID, OTP, token) => {
   };
 
   return await axios(process.env.OTP_AUTHORIZTION_URL, options).then(response => {
-    console.log(response.data.responseCode)
+    return response.data.responseCode
   })
 }
 
 /**
  * @dev Resend OTP if previous one expires.
  * 
+ * @property {Function} resendOTP
  * @param {string} token transaction token previously generated.
+ * @return {number} Response status code.
  */
 const resendOTP = async (token) => {
   const options = {
@@ -121,22 +129,23 @@ const resendOTP = async (token) => {
   
   return await axios(process.env.RESEND_OTP_URL, options).then(response => {
     return response.status
-  }).then(response => console.log(response.status))
+  }).then(response => {return response.status})
   .catch(error => { return error})
 }
 
 /**
  * @dev Make a payment call to the Card Payments API.
  * 
+ * @property {Function} makePayment
  * @param {string} amount Amount of money to be paid.
  * @param {string} token Previously generated transaction token.
  * @param {string} auth_ Card auth data.
- * @returns {object} Payment details
+ * @return {tuple} Tuple of Payment details object and response ocde.
  */
 const makePayment = async (amount, token, auth_) => {
   const param = {
     customerId: "1407002510",
-    amount: JSON.stringify(amount),
+    amount: amount,
     transactionRef: "12n345mmm0km655",
     currency: "NGN",
     authData: auth_
@@ -156,10 +165,9 @@ const makePayment = async (amount, token, auth_) => {
 
   return await axios(options).then(response => {
     if (response.status == 200) {
-      console.log(response.data)
-      console.log(response.data.responseCode)
+      return (response.data, response.data.responseCode)
     } else {
-      console.log(response.status)
+      return response.status
     }
   }).catch(error => {
     return error
@@ -169,6 +177,8 @@ const makePayment = async (amount, token, auth_) => {
 
 /**
  * @dev Confirm if transaction was successful.
+ * 
+ * @property {Function} confirmTransaction
  * @param {string} token Previously generated transaction token.
  * @returns {object} Confirmation data.
  */
@@ -183,7 +193,7 @@ const confirmTransaction = async (token) => {
   };
 
   return await axios(process.env.PAYMENT_CONFIRMATION_URL, options).then(response => {
-    console.log(response.data)
+    return response.data
   })
 }
 
