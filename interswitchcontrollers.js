@@ -117,7 +117,7 @@ const generateToken = async () => {
  * @param {string} OTP OTP sent to user's phone number.
  * @param {string} token Previously generated token.
  * 
- * @return {number} Tranaction response code:
+ * @return {number} Tranaction response code.
  */
 const authOTP = async (paymentID, OTP, token) => {
   const options = {
@@ -139,10 +139,12 @@ const authOTP = async (paymentID, OTP, token) => {
  * @dev Resend OTP if previous one expires.
  * 
  * @property {Function} resendOTP
- * @param {string} token transaction token previously generated.
+ * @param {string} token Transaction token previously generated.
+ * @param {string} paymentId_ Payment Id generated from the transaction.
+ * @param {string} amount Transaction amount.
  * @return {number} Response status code.
  */
-const resendOTP = async (token) => {
+const resendOTP = async (token, paymentId_, amount_) => {
   const options = {
     method: 'POST',
     headers: {
@@ -150,7 +152,7 @@ const resendOTP = async (token) => {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({paymentId: '3530066', amount: '2000', currency: 'NGN'})
+    body: JSON.stringify({paymentId: paymentId_, amount: amount_, currency: 'NGN'})
   };
   
   return await axios(process.env.RESEND_OTP_URL, options).then(response => {
